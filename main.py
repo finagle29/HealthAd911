@@ -149,31 +149,6 @@ def response_cb_handler(update: Update, context: CallbackContext):
                 reply_markup = r_IL_KB)
                 #reply_markup = response_keyboard)
 
-def response_handler(update: Update, context: CallbackContext):
-    if (update.message.text == "I can respond"):
-        handled_case = None
-        if update.message.reply_to_message is None:
-            update.message.reply_text("Please reply to a message regarding a case.")
-            return
-        for case_id, case in HABot.cases.items():
-            if case["name_loc"] in update.message.reply_to_message.text:
-                handled_case = case
-        if handled_case is None:
-            update.message.reply_text("Please reply to a message regarding a case.")
-        else:
-            update.message.reply_text('Great, thanks!')
-            for HA_id in HABot.has.keys():
-                if int(HA_id) != update.effective_user.id:
-                    context.bot.send_message(chat_id = int(HA_id),
-                            text = "Someone is handling " + handled_case["name_loc"])
-            context.bot.send_message(chat_id = handled_case["chat_id"],
-                    text = HABot.has[str(update.effective_user.id)] + " is on their way")
-    else:
-        update.message.reply_text("No problem. Let me know if you change your mind.",
-                #reply_markup = r_IL_KB,
-                reply_markup = response_keyboard)
-
-
 def error(update: Update, context: CallbackContext):
     try:
         raise context.error
@@ -197,6 +172,7 @@ def error(update: Update, context: CallbackContext):
         # handle all other Telegram errors any time soon
 
 def int_handler(signum, frame):
+    # idk if this actually does anything
     data = {
         'ids': HABot.ha_ids,
         'chat_ids': HABot.ha_chat_ids,
@@ -232,12 +208,7 @@ def main():
     start_handler = CommandHandler('start', start, filters = Filters.private)
     healthad_handler = CommandHandler('healthad', healthad, pass_user_data=True, filters = Filters.private)
     public_handler = CommandHandler('healthad', healthad_public, filters = Filters.group)
-    ha_resp_handler = MessageHandler(Filters.regex('^(I can respond|I cannot respond)$'),
-            response_handler)
     ha_resp_il_handler = CallbackQueryHandler(response_cb_handler)
-    #ha_resp_handler = RegexHandler('^(I can respond|I cannot respond)$',
-    #                            response_handler,
-    #                            pass_user_data=True)
     conv_handler = ConversationHandler(
         entry_points = [start_handler, healthad_handler,
             MessageHandler(Filters.private & Filters.regex('^(I need a Health Ad|I am a Health Ad)$'),
@@ -262,7 +233,6 @@ def main():
             MessageHandler(Filters.regex('^I need a Health Ad$'),
                         need_am_handler,
                         pass_user_data=True),
-            ha_resp_handler,
             ha_resp_il_handler]
     )
 
