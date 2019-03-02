@@ -226,7 +226,7 @@ def main():
                         ~Filters.regex('^(I can respond|I cannot respond)$'),
                                 info_handler,
                                 pass_user_data=True)],
-            HEALTHAD: [ha_il_resp_handler, start_handler, healthad_handler]
+            HEALTHAD: [ha_resp_il_handler, start_handler, healthad_handler]
             },
 
         fallbacks=[
