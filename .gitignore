@@ -1,3 +1,4 @@
 *.pkl
 api_key.py
 *.swp
+__pycache__
